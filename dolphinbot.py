@@ -28,7 +28,7 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         print('Message from {0.author}: {0.content}'.format(message))
 
-@client.event
+#@client.event
 async def on_message(message):
     if message.author == client.user:
         return
@@ -59,5 +59,5 @@ async def on_message(message):
         await message.channel.send("You can watch the Knight's Stream here: https://www.twitch.tv/knightsmachine")
 
 
-#client = MyClient()
+client = MyClient()
 client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')
