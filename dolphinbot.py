@@ -22,7 +22,8 @@ rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of 
 class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
-        await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='!Judge'))
+        game = discord.Game("!Judge")
+        await client.change_presence(status=discord.Status.idle, activity=game)
 
     async def on_message(self, message):
         print('Message from {0.author}: {0.content}'.format(message))
@@ -35,7 +36,7 @@ async def on_message(message):
     if message.content.lower().startswith("!help"):
         await message.channel.send("I am here to do one thing. Try using !Judge.")
 
-    if message.content.lower() == "hello":
+    if message.content.lower().startswith("hello"):
         image = directory + "/hello.gif"
         #print(image)
         await message.channel.send("Hello there!")
