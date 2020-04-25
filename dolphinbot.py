@@ -35,7 +35,7 @@ async def on_message(message):
 
     if message.content.lower() == "hello":
         await message.channel.send("Hello there!")
-        await message.channel.send(file=discord.File('hello.gif'))
+        await message.channel.send(file=discord.File('./hello.gif'))
 
     if message.content.lower().startswith("!judge"):
         if str(message.channel).startswith("vassal"):
