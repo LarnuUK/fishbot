@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import discord, random
 
 client = discord.Client()
