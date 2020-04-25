@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-import discord, random
+import discord, random, os
 
 client = discord.Client()
+
+directory = os.path.dirname(os.path.realpath(__file__))
 
 rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of this, and the game state, clearly your opponent's position is correct",
            "You can re-roll all failed hit rolls for this unit if, before rolling the dice, you hold aloft a grail or goblet and shout 'For the Lady' in a heroic voice.",
@@ -34,8 +36,10 @@ async def on_message(message):
         await message.channel.send("I am here to do one thing. Try using !Judge.")
 
     if message.content.lower() == "hello":
+        image = directory + "/hello.gif"
+        #print(image)
         await message.channel.send("Hello there!")
-        await message.channel.send(file=discord.File('./hello.gif'))
+        await message.channel.send(file=discord.File(image))
 
     if message.content.lower().startswith("!judge"):
         if str(message.channel).startswith("vassal"):
