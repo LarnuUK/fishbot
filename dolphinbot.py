@@ -23,7 +23,7 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
         game = discord.Game("!Judge")
-        await client.change_presence(status=discord.Status.idle, activity=game)
+        await client.change_presence(status=discord.Status.online, activity=game)
 
     async def on_message(self, message):
         print('Message from {0.author}: {0.content}'.format(message))
