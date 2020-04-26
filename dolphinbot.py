@@ -22,42 +22,40 @@ rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of 
 class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
-        game = discord.Game("!Judge")
+        game = discord.Game("Judge | !help")
         await client.change_presence(status=discord.Status.online, activity=game)
 
     async def on_message(self, message):
-        print('Message from {0.author}: {0.content}'.format(message))
+        #print('Message from {0.author}: {0.content}'.format(message))
 
-#@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
+        if message.author == client.user:
+            return
 
-    if message.content.lower().startswith("!help"):
-        await message.channel.send("I am here to do one thing. Try using !Judge.")
+        if message.content.lower().startswith("!help"):
+            await message.channel.send("I am here to do one thing. Try using !Judge.")
 
-    if message.content.lower().startswith("hello"):
-        image = directory + "/hello.gif"
-        #print(image)
-        await message.channel.send("Hello there!")
-        await message.channel.send(file=discord.File(image))
+        if message.content.lower().startswith("hello"):
+            image = directory + "/hello.gif"
+            #print(image)
+            await message.channel.send("Hello there!")
+            await message.channel.send(file=discord.File(image))
 
-    if message.content.lower().startswith("!judge"):
-        if str(message.channel).startswith("vassal"):
-            #response = "I haven't been trained to give Judge calls yet, sorry {0.author.mention}. :(".format(message)
-            response = "Thanks for asking for a Judgement call {0.author.mention}.".format(message)
-            await message.channel.send(response)
-            r = len(rulings)
-            i = random.randint(0,r)
-            response = rulings[i].format(message)
-            await message.channel.send(response)
-        else:
-            response = "We're not in a game channel, {0.author.mention}. Please get my attention in the correct Vassal Game Channel. Thanks! :)".format(message)
-            await message.channel.send(response)
+        if message.content.lower().startswith("!judge"):
+            if str(message.channel).startswith("vassal"):
+                #response = "I haven't been trained to give Judge calls yet, sorry {0.author.mention}. :(".format(message)
+                response = "Thanks for asking for a Judgement call {0.author.mention}.".format(message)
+                await message.channel.send(response)
+                r = len(rulings)
+                i = random.randint(0,r)
+                response = rulings[i].format(message)
+                await message.channel.send(response)
+            else:
+                response = "We're not in a game channel, {0.author.mention}. Please get my attention in the correct Vassal Game Channel. Thanks! :)".format(message)
+                await message.channel.send(response)
 
-    if message.content.lower() == "!stream":
-        await message.channel.send("You can watch the Knight's Stream here: https://www.twitch.tv/knightsmachine")
+        if message.content.lower() == "!stream":
+            await message.channel.send("You can watch the Knight's Stream here: https://www.twitch.tv/knightsmachine")
 
 
 client = MyClient()
-client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')
+client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')   
