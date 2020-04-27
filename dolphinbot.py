@@ -69,7 +69,7 @@ class MyClient(discord.Client):
             i = random.randint(0,s)
             response = scenarios[i].format(message)
             await message.channel.send(response)
-            map = directory + "/images/" + scenarios[i].replace(" ","") + "-2019.png"
+            map = directory + "/Images/" + scenarios[i].replace(" ","") + "-2019.png"
             await message.channel.send(file=discord.File(map))
 
 client = MyClient()
