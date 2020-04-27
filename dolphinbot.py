@@ -37,7 +37,7 @@ class MyClient(discord.Client):
             await message.channel.send("I am here to do one thing. Try using !Judge.")
 
         if message.content.lower().startswith("hello"):
-            image = directory + "/hello.gif"
+            image = directory + "/Images/hello.gif"
             #print(image)
             await message.channel.send("Hello there!")
             await message.channel.send(file=discord.File(image))
@@ -63,7 +63,8 @@ class MyClient(discord.Client):
             i = random.randint(0,s)
             response = scenarios[i].format(message)
             await message.channel.send(response)
-
+            map = directory + "/images/" + scenarios[i].replace(" ","") + "-2019.png"
+            await message.channel.send(file=discord.File(map))
 
 client = MyClient()
 client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')   
