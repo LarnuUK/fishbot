@@ -19,6 +19,8 @@ rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of 
            "After you determine if it was a successful slam, meaning the model ended its slam movement within its slam range (.5'' for most models), it then can cast telekinesis and slam from its new location. As stated assuming it still has the model being slammed in its slam range.",
            "Because it is intended that with blood bound that no souls or corpses are able to be gained. We will look further at the wording and see what can be done, but for now there is no need for further discussion."]
 
+scenarios = ["King of the Hill","Bunkers","Spread the Net","Invasion","Anarchy","Recon II"]
+
 class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
@@ -31,7 +33,7 @@ class MyClient(discord.Client):
         if message.author == client.user:
             return
 
-        if message.content.lower().startswith("!help"):
+        if message.content.lower() == ("!help"):
             await message.channel.send("I am here to do one thing. Try using !Judge.")
 
         if message.content.lower().startswith("hello"):
@@ -40,7 +42,7 @@ class MyClient(discord.Client):
             await message.channel.send("Hello there!")
             await message.channel.send(file=discord.File(image))
 
-        if message.content.lower().startswith("!judge"):
+        if message.content.lower() == ("!judge"):
             if str(message.channel).startswith("vassal"):
                 #response = "I haven't been trained to give Judge calls yet, sorry {0.author.mention}. :(".format(message)
                 response = "Thanks for asking for a Judgement call {0.author.mention}.".format(message)
@@ -55,6 +57,12 @@ class MyClient(discord.Client):
 
         if message.content.lower() == "!stream":
             await message.channel.send("You can watch the Knight's Stream here: https://www.twitch.tv/knightsmachine")
+
+        if message.content.lower() == "!scenario":
+            s = len(scenarios)
+            i = random.randint(0,s)
+            response = scenarios[i].format(message)
+            await message.channel.send(response)
 
 
 client = MyClient()
