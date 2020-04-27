@@ -21,6 +21,12 @@ rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of 
 
 scenarios = ["King of the Hill","Bunkers","Spread the Net","Invasion","Anarchy","Recon II"]
 
+help = """Currently the commands available are:
+!help: Displays this help message.
+!stream: Get the link the the Knight Twitch Stream.
+!judge: Ask for a (meme worthy) Judgement call from Dolphin.
+!scenario: Provides a random Stream Roller 2019 Scenario."""
+
 class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
@@ -34,7 +40,7 @@ class MyClient(discord.Client):
             return
 
         if message.content.lower() == ("!help"):
-            await message.channel.send("I am here to do one thing. Try using !Judge.")
+            await message.channel.send(help)
 
         if message.content.lower().startswith("hello"):
             image = directory + "/Images/hello.gif"
