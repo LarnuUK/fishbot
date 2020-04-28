@@ -30,6 +30,7 @@ help = """Currently the commands available are:
 > !judge: Ask for a (meme worthy) Judgement call from Dolphin.
 > !timer: Set a countdown timer. Syntax `!timer {hh:mm} ({reason}). Use `!timer` for more details.`
 > !scenario: Provides a random Stream Roller 2019 Scenario.
+> !github: Provides a link to the bot's GitHub page for reporting issues.
 
 `{}` denote parameters. Parameters wrapped in `()` are optional."""
 
@@ -128,6 +129,11 @@ class MyClient(discord.Client):
             else:
                 await message.channel.send("That isn't a valid time!")
             return
+
+        if message.content.lower() == "!github":
+            await message.channel.send("Please report any issues with the bot on GitHub: <https://github.com/LarnuUK/dolphinbot>".format(message))
+            return
+
 
         if message.content.lower() == "!test":
             botmsg = await message.channel.send("testing".format(message))
