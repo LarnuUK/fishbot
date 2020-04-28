@@ -6,6 +6,10 @@ client = discord.Client()
 
 directory = os.path.dirname(os.path.realpath(__file__))
 
+with open(directory + "/bot.key","r") as file:
+    key = file.read()
+
+
 rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of this, and the game state, clearly your opponent's position is correct",
            "You can re-roll all failed hit rolls for this unit if, before rolling the dice, you hold aloft a grail or goblet and shout 'For the Lady' in a heroic voice.",
            "You can re-roll any failed hit rolls when attacking with the Runefang so long as you have a bigger and more impressive moustache than your opponent.",
@@ -73,4 +77,5 @@ class MyClient(discord.Client):
             await message.channel.send(file=discord.File(map))
 
 client = MyClient()
-client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')   
+#client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')   
+client.run(key)
