@@ -44,25 +44,8 @@ class MyClient(discord.Client):
         #print('Message from {0.author}: {0.content}'.format(message))
         import time
         from datetime import datetime, timedelta
+
         if message.author == client.user:
-            if message.content.startswith("> Timer:"):
-                start = datetime.now()
-                hours = message.content[10:12]
-                minutes = message.content[13:15]
-                seconds = message.content[16:18]
-                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
-                reason = message.content[19:]
-                end = start + timedelta(seconds=duration)
-                while datetime.now() < end:
-                    time.sleep(0.5)
-                    remaining = int((end - datetime.now()).total_seconds())
-                    hours = str(int(remaining / 216000))
-                    minutes = str(int((remaining % 3600)/60))
-                    seconds = str(remaining % 60)
-                    newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
-                    await message.edit(content=newcontent.format(message))
-                newcontent = "> Timer finished! " + reason
-                await message.edit(content=newcontent.format(message))        
             return
 
         if message.content.lower() == ("!help"):
@@ -109,19 +92,47 @@ class MyClient(discord.Client):
             return
 
         if message.content.lower().startswith("!timer "):
-            time = message.content[7:12]
+            timer = message.content[7:12]
             hours = message.content[7:9]
             minutes = message.content[10:12]
+            seconds = "00"
             reason = message.content[13:]
-            if re.match("[0-9][0-9]:[0-5][0-9]",time):
+            if re.match("[0-9][0-9]:[0-5][0-9]",timer):
                 response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
                 await message.channel.send(response.format(message))
                 if reason != "":
                     reason = " - " + reason
                 response = "> Timer: `" + hours + ":" + minutes + ":00" + "`" + reason
-                await message.channel.send(response.format(message))
+                timermsg = await message.channel.send(response.format(message))
+
+                #Start counting down
+                start = datetime.now()
+                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
+                end = start + timedelta(seconds=duration)
+                while datetime.now() < end:
+                    time.sleep(0.5)
+                    remaining = int((end - datetime.now()).total_seconds())
+                    hours = str(int(remaining / 216000))
+                    minutes = str(int((remaining % 3600)/60))
+                    seconds = str(remaining % 60)
+                    newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
+                    await timermsg.edit(content=newcontent.format(message))
+                
+                #timer complete!
+                newcontent = "> Timer `00:00:00` " + reason
+                await timermsg.edit(content=newcontent.format(message))
+                if reason != "":
+                    reason = reason[2:] + " "
+                response = "Your timer " + reason + "has finished {0.author.mention}!".format(message)
+                await message.channel.send(response)
             else:
                 await message.channel.send("That isn't a valid time!")
+            return
+
+        if message.content.lower() == "!test":
+            botmsg = await message.channel.send("testing".format(message))
+            time.sleep(2)
+            await botmsg.edit(content="test complete".format(message))
             return
 
 client = MyClient()
