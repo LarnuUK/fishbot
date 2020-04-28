@@ -43,21 +43,22 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         #print('Message from {0.author}: {0.content}'.format(message))
         import time
+        from datetime import datetime, timedelta
         if message.author == client.user:
             if message.content.startswith("> Timer:"):
+                start = datetime.now()
                 hours = message.content[10:12]
                 minutes = message.content[13:15]
                 seconds = message.content[16:18]
+                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
                 reason = message.content[19:]
-                while int(hours) > 0 or int(minutes) > 0 or int(seconds) > 0:
-                    time.sleep(1)
-                    seconds = str(int(seconds) - 1)
-                    if int(seconds) < 0:
-                        seconds = "59"
-                        minutes = str(int(minutes) - 1)
-                        if int(minutes) < 0:
-                            minutes = "59"
-                            hours = str(int(hours) - 1)
+                end = start + timedelta(seconds=duration)
+                while datetime.now() < end:
+                    time.sleep(0.5)
+                    remaining = int((end - datetime.now()).total_seconds())
+                    hours = str(int(remaining / 216000))
+                    minutes = str(int((remaining % 3600)/60))
+                    seconds = str(remaining % 60)
                     newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
                     await message.edit(content=newcontent.format(message))
                 newcontent = "> Timer finished! " + reason
@@ -115,7 +116,9 @@ class MyClient(discord.Client):
             if re.match("[0-9][0-9]:[0-5][0-9]",time):
                 response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
                 await message.channel.send(response.format(message))
-                response = "> Timer: `" + hours + ":" + minutes + ":00" + "` - " + reason
+                if reason != "":
+                    reason = " - " + reason
+                response = "> Timer: `" + hours + ":" + minutes + ":00" + "`" + reason
                 await message.channel.send(response.format(message))
             else:
                 await message.channel.send("That isn't a valid time!")
