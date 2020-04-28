@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-
-import discord, random, os
+import discord, random, os, re
 
 client = discord.Client()
 
@@ -26,12 +25,16 @@ rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of 
 scenarios = ["King of the Hill","Bunkers","Spread the Net","Invasion","Anarchy","Recon II"]
 
 help = """Currently the commands available are:
-!help: Displays this help message.
-!stream: Get the link the the Knight Twitch Stream.
-!judge: Ask for a (meme worthy) Judgement call from Dolphin.
-!scenario: Provides a random Stream Roller 2019 Scenario."""
+> !help: Displays this help message.
+> !stream: Get the link the the Knight Twitch Stream.
+> !judge: Ask for a (meme worthy) Judgement call from Dolphin.
+> !timer: Set a countdown timer. Syntax `!timer {hh:mm} ({reason}). Use `!timer` for more details.`
+> !scenario: Provides a random Stream Roller 2019 Scenario.
+
+`{}` denote parameters. Parameters wrapped in `()` are optional."""
 
 class MyClient(discord.Client):
+
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
         game = discord.Game("Judge | !help")
@@ -39,18 +42,38 @@ class MyClient(discord.Client):
 
     async def on_message(self, message):
         #print('Message from {0.author}: {0.content}'.format(message))
-
+        import time
         if message.author == client.user:
+            if message.content.startswith("> Timer:"):
+                hours = message.content[10:12]
+                minutes = message.content[13:15]
+                seconds = message.content[16:18]
+                reason = message.content[19:]
+                while int(hours) > 0 or int(minutes) > 0 or int(seconds) > 0:
+                    time.sleep(1)
+                    seconds = str(int(seconds) - 1)
+                    if int(seconds) < 0:
+                        seconds = "59"
+                        minutes = str(int(minutes) - 1)
+                        if int(minutes) < 0:
+                            minutes = "59"
+                            hours = str(int(hours) - 1)
+                    newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
+                    await message.edit(content=newcontent.format(message))
+                newcontent = "> Timer finished! " + reason
+                await message.edit(content=newcontent.format(message))        
             return
 
         if message.content.lower() == ("!help"):
             await message.channel.send(help)
+            return
 
         if message.content.lower().startswith("hello"):
             image = directory + "/Images/hello.gif"
             #print(image)
             await message.channel.send("Hello there!")
             await message.channel.send(file=discord.File(image))
+            return
 
         if message.content.lower() == ("!judge"):
             if str(message.channel).startswith("vassal"):
@@ -61,12 +84,15 @@ class MyClient(discord.Client):
                 i = random.randint(0,r)
                 response = rulings[i].format(message)
                 await message.channel.send(response)
+                return
             else:
                 response = "We're not in a game channel, {0.author.mention}. Please get my attention in the correct Vassal Game Channel. Thanks! :)".format(message)
                 await message.channel.send(response)
+                return
 
         if message.content.lower() == "!stream":
             await message.channel.send("You can watch the Knight's Stream here: https://www.twitch.tv/knightsmachine")
+            return
 
         if message.content.lower() == "!scenario":
             s = len(scenarios)
@@ -75,7 +101,25 @@ class MyClient(discord.Client):
             await message.channel.send(response)
             map = directory + "/Images/" + scenarios[i].replace(" ","") + "-2019.png"
             await message.channel.send(file=discord.File(map))
+            return
+        
+        if message.content.lower() == "!timer":
+            await message.channel.send("The !timer command must be followed by a time period, and optionally a reason. For example: `!timer 03:00` will set a timer for 3 hours. If you wish, you can include a reason afterwards. For example: `!timer 01:30 Ryan and Thom's game` will set a timer for 1 hour 30 minutes with the reason *\"Ryan and Thom's game\"*.")
+            return
+
+        if message.content.lower().startswith("!timer "):
+            time = message.content[7:12]
+            hours = message.content[7:9]
+            minutes = message.content[10:12]
+            reason = message.content[13:]
+            if re.match("[0-9][0-9]:[0-5][0-9]",time):
+                response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
+                await message.channel.send(response.format(message))
+                response = "> Timer: `" + hours + ":" + minutes + ":00" + "` - " + reason
+                await message.channel.send(response.format(message))
+            else:
+                await message.channel.send("That isn't a valid time!")
+            return
 
 client = MyClient()
-#client.run('NzAzNjMyNjg2ODk1MzMzMzk0.XqRbJg.-coCvULGK3S9Q_mvuj0E1XbFU0o')   
 client.run(key)
