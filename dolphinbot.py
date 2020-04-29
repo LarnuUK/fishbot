@@ -113,7 +113,7 @@ class MyClient(discord.Client):
                 while datetime.now() < end:
                     time.sleep(0.5)
                     remaining = int((end - datetime.now()).total_seconds())
-                    hours = str(int(remaining / 216000))
+                    hours = str(int(remaining / 3600))
                     minutes = str(int((remaining % 3600)/60))
                     seconds = str(remaining % 60)
                     newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
