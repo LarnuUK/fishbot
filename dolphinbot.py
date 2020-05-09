@@ -124,7 +124,46 @@ class MyClient(discord.Client):
                 await timermsg.edit(content=newcontent.format(message))
                 if reason != "":
                     reason = reason[2:] + " "
-                response = "Your timer " + reason + "has finished {0.author.mention}!".format(message)
+                response = "Your timer" + reason + "has finished {0.author.mention}!".format(message)
+                await message.channel.send(response)
+            else:
+                await message.channel.send("That isn't a valid time!")
+            return
+        
+        #I have been lazy with this name for now.
+        if message.content.lower().startswith("!heret "):
+            timer = message.content[7:12]
+            hours = message.content[7:9]
+            minutes = message.content[10:12]
+            seconds = "00"
+            reason = message.content[13:]
+            if re.match("[0-9][0-9]:[0-5][0-9]",timer):
+                response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
+                await message.channel.send(response.format(message))
+                if reason != "":
+                    reason = " - " + reason
+                response = "> Timer: `" + hours + ":" + minutes + ":00" + "`" + reason
+                timermsg = await message.channel.send(response.format(message))
+
+                #Start counting down
+                start = datetime.now()
+                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
+                end = start + timedelta(seconds=duration)
+                while datetime.now() < end:
+                    time.sleep(0.5)
+                    remaining = int((end - datetime.now()).total_seconds())
+                    hours = str(int(remaining / 3600))
+                    minutes = str(int((remaining % 3600)/60))
+                    seconds = str(remaining % 60)
+                    newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
+                    await timermsg.edit(content=newcontent.format(message))
+                
+                #timer complete!
+                newcontent = "> Timer `00:00:00` " + reason
+                await timermsg.edit(content=newcontent.format(message))
+                if reason != "":
+                    reason = reason[2:] + " "
+                response = "@here - Your " + reason + "timer has finished!".format(message)
                 await message.channel.send(response)
             else:
                 await message.channel.send("That isn't a valid time!")
