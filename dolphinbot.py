@@ -101,14 +101,16 @@ class MyClient(discord.Client):
             if re.match("[0-9][0-9]:[0-5][0-9]",timer):
                 response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
                 await message.channel.send(response.format(message))
-                if reason != "":
-                    reason = " - " + reason
-                response = "> Timer: `" + hours + ":" + minutes + ":00" + "`" + reason
-                timermsg = await message.channel.send(response.format(message))
-
+                
+                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
+                
+                embed = discord.Embed(title="Timer", description=reason, color=0x4444dd)
+                embed.add_field(name="Duration", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                embed.add_field(name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                timermsg = await message.channel.send(embed=embed)
+                
                 #Start counting down
                 start = datetime.now()
-                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
                 end = start + timedelta(seconds=duration)
                 while datetime.now() < end:
                     time.sleep(0.5)
@@ -116,15 +118,13 @@ class MyClient(discord.Client):
                     hours = str(int(remaining / 3600))
                     minutes = str(int((remaining % 3600)/60))
                     seconds = str(remaining % 60)
-                    newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
-                    await timermsg.edit(content=newcontent.format(message))
+                    embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    await timermsg.edit(embed=embed)
                 
                 #timer complete!
-                newcontent = "> Timer `00:00:00` " + reason
-                await timermsg.edit(content=newcontent.format(message))
-                if reason != "":
-                    reason = reason[2:] + " "
-                response = "Your timer" + reason + "has finished {0.author.mention}!".format(message)
+                embed.set_field_at(1,name="Remaining", value="`00:00:00` ", inline=True) 
+                await timermsg.edit(embed=embed)
+                response = "Your timer has finished {0.author.mention}!".format(message)
                 await message.channel.send(response)
             else:
                 await message.channel.send("That isn't a valid time!")
@@ -137,17 +137,21 @@ class MyClient(discord.Client):
             minutes = message.content[10:12]
             seconds = "00"
             reason = message.content[13:]
+            if reason == "":
+                await message.channel.send("Here timers must have a reason.")
             if re.match("[0-9][0-9]:[0-5][0-9]",timer):
                 response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
                 await message.channel.send(response.format(message))
-                if reason != "":
-                    reason = " - " + reason
-                response = "> Timer: `" + hours + ":" + minutes + ":00" + "`" + reason
-                timermsg = await message.channel.send(response.format(message))
-
+                
+                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
+                
+                embed = discord.Embed(title="Here Timer", description=reason, color=0x4444dd)
+                embed.add_field(name="Duration", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                embed.add_field(name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                timermsg = await message.channel.send(embed=embed)
+                
                 #Start counting down
                 start = datetime.now()
-                duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
                 end = start + timedelta(seconds=duration)
                 while datetime.now() < end:
                     time.sleep(0.5)
@@ -155,15 +159,13 @@ class MyClient(discord.Client):
                     hours = str(int(remaining / 3600))
                     minutes = str(int((remaining % 3600)/60))
                     seconds = str(remaining % 60)
-                    newcontent = "> Timer: `" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` " + reason
-                    await timermsg.edit(content=newcontent.format(message))
+                    embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    await timermsg.edit(embed=embed)
                 
                 #timer complete!
-                newcontent = "> Timer `00:00:00` " + reason
-                await timermsg.edit(content=newcontent.format(message))
-                if reason != "":
-                    reason = reason[2:] + " "
-                response = "@here - Your " + reason + "timer has finished!".format(message)
+                embed.set_field_at(1,name="Remaining", value="`00:00:00` ", inline=True) 
+                await timermsg.edit(embed=embed)
+                response = "".join(["@here , the timer, ", reason, ", has finished!"]).format(message)
                 await message.channel.send(response)
             else:
                 await message.channel.send("That isn't a valid time!")
