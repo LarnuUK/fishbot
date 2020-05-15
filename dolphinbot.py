@@ -55,10 +55,40 @@ class MyClient(discord.Client):
 
         if message.content.lower().startswith("hello"):
             image = directory + "/Images/hello.gif"
-            #print(image)
+            print(image)
             await message.channel.send("Hello there!")
             await message.channel.send(file=discord.File(image))
             return
+
+        if "judge" in message.content.lower():
+            image = directory + "/Images/legal.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "flex" in message.content.lower():
+            image = directory + "/Images/flex.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "infernals" in message.content.lower():
+            image = directory + "/Images/scared.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "win" in message.content.lower():
+            image = directory + "/Images/collection.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "play" in message.content.lower():
+            image = directory + "/Images/duel.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "balance" in message.content.lower():
+            image = directory + "/Images/balanced.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
 
         if message.content.lower() == ("!judge"):
             if str(message.channel).startswith("vassal"):
