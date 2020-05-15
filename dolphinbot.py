@@ -139,7 +139,15 @@ class MyClient(discord.Client):
             reason = message.content[13:]
             if reason == "":
                 await message.channel.send("Here timers must have a reason.")
-            if re.match("[0-9][0-9]:[0-5][0-9]",timer):
+                return
+            roles =  message.author.roles
+            isJudge = False
+            for role in roles:
+                if role.name == "Judge":
+                    isJudge = True
+            if isJudge == False:
+                await message.channel.send("You must be a Judge to use Here Timers.")
+            elif re.match("[0-9][0-9]:[0-5][0-9]",timer):
                 response = "Setting timer for " + str(int(hours)) + " hour(s) and " + str(int(minutes)) + " minute(s). Let the count down begin!"
                 await message.channel.send(response.format(message))
                 
