@@ -60,36 +60,6 @@ class MyClient(discord.Client):
             await message.channel.send(file=discord.File(image))
             return
 
-        if "judge" in message.content.lower():
-            image = directory + "/Images/legal.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
-        if "flex" in message.content.lower():
-            image = directory + "/Images/flex.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
-        if "infernals" in message.content.lower():
-            image = directory + "/Images/scared.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
-        if "win" in message.content.lower():
-            image = directory + "/Images/collection.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
-        if "play" in message.content.lower():
-            image = directory + "/Images/duel.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
-        if "balance" in message.content.lower():
-            image = directory + "/Images/balanced.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
         if message.content.lower() == ("!judge"):
             if str(message.channel).startswith("vassal"):
                 #response = "I haven't been trained to give Judge calls yet, sorry {0.author.mention}. :(".format(message)
@@ -211,6 +181,36 @@ class MyClient(discord.Client):
             time.sleep(2)
             await botmsg.edit(content="test complete".format(message))
             return
+
+        if " judge" in message.content.lower() or "judge " in message.content.lower():
+            image = directory + "/Images/legal.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if " flex" in message.content.lower() or "flex " in message.content.lower():
+            image = directory + "/Images/flex.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "infernals" in message.content.lower():
+            image = directory + "/Images/scared.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if " win" in message.content.lower() or "win " in message.content.lower():
+            image = directory + "/Images/collection.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if " play" in message.content.lower() or "play " in message.content.lower():
+            image = directory + "/Images/duel.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+
+        if "balance" in message.content.lower():
+            image = directory + "/Images/balanced.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
 
 client = MyClient()
 client.run(key)
