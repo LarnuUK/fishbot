@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
 import discord, random, os, re, json
+from os import path
+from shutil import copyfile
 
 client = discord.Client()
 
 directory = os.path.dirname(os.path.realpath(__file__))
+
+clockfile = directory + "/clocks.json"
+
+if not path.isfile(clockfile):
+    copyfile(directory+"/sample clocks.json",clockfile)
+
+
 
 with open(directory + "/bot.key","r") as file:
     key = file.read()
@@ -206,7 +215,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
             return           
 
         if message.content.lower().startswith("!chessclock "):
-            with open("clocks.json","r") as clocks_file:
+            with open(clockfile,"r") as clocks_file:
                 clocks = json.load(clocks_file)
                 for (id,clock) in clocks.items():
                     player1 = clock["Player1"]
@@ -225,88 +234,26 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                 duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
                 description = "".join([message.author.name, " vs ", message.mentions[0].name])
                 time = '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds)
-                embed = discord.Embed(title="Chess Clock", description=description, color=0xffffff)
+                embed = discord.Embed(title="Chess Clock", description=description, color=0xdddddd)
                 embed.add_field(name="ID", value=clockid, inline=False) 
                 embed.add_field(name="__**" + message.author.name+ "**__", value="`" + time + "`", inline=True) 
                 embed.add_field(name=message.mentions[0].name, value="`" + time + "` ", inline=True) 
                 embed.add_field(name="Status", value="Not Started", inline=False)
+                embed.add_field(name="Pauses", value="0(0)", inline=True)
                 clockmsg = await message.channel.send(embed=embed)
-                with open("clocks.json","w") as clocks_file:
-                    newclock = {str(clockid): { "Status": "Not Started", "Status Time": str(datetime.now()), "Channel ID": message.channel.id, "Active Player": "1", "Message ID" : str(clockmsg.id), "Player1": {"Name": message.author.name, "ID": message.author.id, "Remaining": time},"Player2": {"Name": message.mentions[0].name, "ID": message.mentions[0].id, "Remaining": time}}}
+                with open(clockfile,"w") as clocks_file:
+                    newclock = {str(clockid): { "Status": "Not Started", "Status Time": str(datetime.now()), "Channel ID": message.channel.id, "Active Player": "1", "Message ID" : str(clockmsg.id), "Pauses": 0, "Judge Pauses": 0, "Player1": {"Name": message.author.name, "ID": message.author.id, "Remaining": duration},"Player2": {"Name": message.mentions[0].name, "ID": message.mentions[0].id, "Remaining": duration}}}
                     clocks.update(newclock)
-                    print(clocks)
+                    #print(clocks)
                     json.dump(clocks, clocks_file, indent=4)
             else:
                 await message.channel.send("That isn't a valid time!")
             return
 
-        if message.content.lower().startswith("!end"):
-            if message.content.lower() == "!end":
-                clockfound = False
-                with open("clocks.json","r") as clocks_file:
-                    clocks = json.load(clocks_file)
-                    for (id,clock) in clocks.items():
-                        if clockfound == False:
-                            player1 = clock["Player1"]
-                            player2 = clock["Player2"]
-                            if clock["Status"] != "Finished" and int(clock["Channel ID"]) == message.channel.id and (int(player1["ID"]) == message.author.id or int(player2["ID"]) == message.author.id):
-                                clockfound = True
-                                clockid = id
-                                clockmsg = clock["Message ID"]
-                if clockfound == False:
-                    await message.channel.send("You do not currently have an active clock to end in this channel!".format(message))
-                else:
-                    #await message.channel.delete(clockmsg)
-                    await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
-                    description = "".join([player1["Name"], " vs ", player2["Name"]])
-                    embed = discord.Embed(title="Chess Clock", description=description, color=0x000000)
-                    embed.add_field(name="ID", value=clockid, inline=False)
-                    embed.add_field(name=player1["Name"], value="`" + player1["Remaining"] + "`", inline=True) 
-                    embed.add_field(name=player2["Name"], value="`" + player2["Remaining"] + "` ", inline=True) 
-                    embed.add_field(name="Status", value="Finished", inline=False)
-                    clockmsg = await message.channel.send(embed=embed)
-                    with open("clocks.json","w") as clocks_file:
-                        clocks[clockid]["Status"] = "Finished"
-                        clocks[clockid]["Message ID"] = clockmsg.id
-                        json.dump(clocks, clocks_file, indent=4)
-
-            else:
-                roles = message.author.roles
-                isJudge = False
-                for role in roles:
-                    if role.name == "Judge":
-                        isJudge = True
-                if isJudge == False:
-                    await message.channel.send("You must be a Judge to effect Chess Clocks with an ID.")
-                else:
-                    clockid = message.content.lower()[5:]
-                    with open("clocks.json","r") as clocks_file:
-                        clocks = json.load(clocks_file)
-                        clock = clocks[clockid]
-                        player1 = clock["Player1"]
-                        player2 = clock["Player2"]
-                    if clock["Status"] != "Finished":
-                        await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
-                        description = "".join([player1["Name"], " vs ", player2["Name"]])
-                        embed = discord.Embed(title="Chess Clock", description=description, color=0x000000)
-                        embed.add_field(name="ID", value=clockid, inline=False)
-                        embed.add_field(name=player1["Name"], value="`" + player1["Remaining"] + "`", inline=True) 
-                        embed.add_field(name=player2["Name"], value="`" + player2["Remaining"] + "` ", inline=True) 
-                        embed.add_field(name="Status", value="Finished", inline=False)
-                        clockmsg = await message.channel.send(embed=embed)
-                        with open("clocks.json","w") as clocks_file:
-                            clocks[clockid]["Status"] = "Finished"
-                            clocks[clockid]["Message ID"] = clockmsg.id
-                            json.dump(clocks, clocks_file, indent=4)
-                    else:
-                        response = "That clock is already finished!"
-                        await message.channel.send(response.format(message))      
-            return
-
         if message.content.lower().startswith("!start"):
             if message.content.lower() == "!start":
                 clockfound = False
-                with open("clocks.json","r") as clocks_file:
+                with open(clockfile,"r") as clocks_file:
                     clocks = json.load(clocks_file)
                     for (id,clock) in clocks.items():
                         if clockfound == False:
@@ -314,33 +261,44 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             player2 = clock["Player2"]
                             if clock["Status"] != "Finished" and int(clock["Channel ID"]) == message.channel.id and (int(player1["ID"]) == message.author.id or int(player2["ID"]) == message.author.id):
                                 clockfound = True
-                                clockid = id
-                                clockmsg = clock["Message ID"]
-                                active = clock["Active Player"]
+                                break
                 if clockfound == False:
                     await message.channel.send("You do not currently have an active clock to end in this channel!".format(message))
+                elif clock["Status"] == "Running":
+                    await message.channel.send("Your clock is already running.".format(message))
                 else:
-                    if int(active) == 1:
-                        colour = 0xdd0000
+                    if int(clock["Active Player"]) == 1:
+                        colour = 0xaa3333
                         playerone = "__**" + player1["Name"] + "**__"
                         playertwo = player2["Name"]
                     else:
-                        colour = 0x0000dd
+                        colour = 0x3333aa
                         playerone = player1["Name"]
                         playertwo = "__**" + player2["Name"] + "**__"                        
                     #await message.channel.delete(clockmsg)
-                    await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+
+                    p1hours = str(int(player1["Remaining"] / 3600))
+                    p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                    p1seconds = str(player1["Remaining"] % 60)
+                    p2hours = str(int(player2["Remaining"] / 3600))
+                    p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                    p2seconds = str(player2["Remaining"] % 60)
+                    #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
                     description = "".join([player1["Name"], " vs ", player2["Name"]])
                     embed = discord.Embed(title="Chess Clock", description=description, color=colour)
-                    embed.add_field(name="ID", value=clockid, inline=False)
-                    embed.add_field(name=playerone, value="`" + player1["Remaining"] + "`", inline=True) 
-                    embed.add_field(name=playertwo, value="`" + player2["Remaining"] + "` ", inline=True) 
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
                     embed.add_field(name="Status", value="Running", inline=False)
+                    embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
                     clockmsg = await message.channel.send(embed=embed)
-                    with open("clocks.json","w") as clocks_file:
-                        clocks[clockid]["Status"] = "Running"
-                        clocks[clockid]["Status Time"] = str(datetime.now())
-                        clocks[clockid]["Message ID"] = clockmsg.id
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status"] = "Running"
+                        clocks[id]["Status Time"] = str(datetime.now())
+                        clocks[id]["Message ID"] = clockmsg.id
                         json.dump(clocks, clocks_file, indent=4)
 
             else:
@@ -352,38 +310,704 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                 if isJudge == False:
                     await message.channel.send("You must be a Judge to effect Chess Clocks with an ID.")
                 else:
-                    clockid = message.content.lower()[7:]
-                    with open("clocks.json","r") as clocks_file:
+                    id = message.content.lower()[7:]
+                    with open(clockfile,"r") as clocks_file:
                         clocks = json.load(clocks_file)
-                    clock = clocks[clockid]
+                    try:
+                        clock = clocks[id]
+                    except:
+                        await message.channel.send("That clock does not exist!".format(message))
+                        return
                     player1 = clock["Player1"]
                     player2 = clock["Player2"]
-                    if clock["Status"] != "Finished":
+                    if clock["Status"] == "Running":
+                        await message.channel.send("That clock is already running!".format(message))
+                    elif clock["Status"] == "Finished":
+                        response = "That clock is already finished!"
+                        await message.channel.send(response.format(message))      
+                    else:
                         if int(clock["Active Player"]) == 1:
-                            colour = 0xdd0000
+                            colour = 0xaa3333
                             playerone = "__**" + player1["Name"] + "**__"
                             playertwo = player2["Name"]
                         else:
-                            colour = 0x0000dd
+                            colour = 0x3333aa
                             playerone = player1["Name"]
                             playertwo = "__**" + player2["Name"] + "**__"             
-                        await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                        #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                        p1hours = str(int(player1["Remaining"] / 3600))
+                        p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                        p1seconds = str(player1["Remaining"] % 60)
+                        p2hours = str(int(player2["Remaining"] / 3600))
+                        p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                        p2seconds = str(player2["Remaining"] % 60)
+                        #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                        p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                        p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
                         description = "".join([player1["Name"], " vs ", player2["Name"]])
                         embed = discord.Embed(title="Chess Clock", description=description, color=colour)
-                        embed.add_field(name="ID", value=clockid, inline=False)
-                        embed.add_field(name=playerone, value="`" + player1["Remaining"] + "`", inline=True) 
-                        embed.add_field(name=playertwo, value="`" + player2["Remaining"] + "` ", inline=True) 
+                        embed.add_field(name="ID", value=id, inline=False)
+                        embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                        embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
                         embed.add_field(name="Status", value="Running", inline=False)
+                        embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
                         clockmsg = await message.channel.send(embed=embed)
-                        with open("clocks.json","w") as clocks_file:
-                            clocks[clockid]["Status"] = "Running"
-                            clocks[clockid]["Status Time"] = str(datetime.now())
-                            clocks[clockid]["Message ID"] = clockmsg.id
+                        with open(clockfile,"w") as clocks_file:
+                            clocks[id]["Status"] = "Running"
+                            clocks[id]["Status Time"] = str(datetime.now())
+                            clocks[id]["Message ID"] = clockmsg.id
+                            json.dump(clocks, clocks_file, indent=4)
+                    
+            return
+
+        if message.content.lower().startswith("!update"):
+            if message.content.lower() == "!update":
+                clockfound = False
+                with open(clockfile,"r") as clocks_file:
+                    clocks = json.load(clocks_file)
+                    for (id,clock) in clocks.items():
+                        if clockfound == False:
+                            player1 = clock["Player1"]
+                            player2 = clock["Player2"]
+                            if clock["Status"] != "Finished" and int(clock["Channel ID"]) == message.channel.id and (int(player1["ID"]) == message.author.id or int(player2["ID"]) == message.author.id):
+                                clockfound = True
+                                break
+                if clockfound == False:
+                    await message.channel.send("You do not currently have an active clock to update in this channel!".format(message))
+                elif clock["Status"] == "Paused" or clock["Status"] == "Not Started":
+                    await message.channel.send("Your clock is currently not running. You need to !start your clock.".format(message))
+                else:
+                    laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                    if int(clock["Active Player"]) == 1:
+                        remaining = player1["Remaining"]
+                        activeplayer = player1["ID"]
+                    else: 
+                        remaining = player2["Remaining"]
+                        activeplayer = player2["ID"]
+                    timepassed = int((datetime.now() - laststatus).total_seconds())
+                    newremaining = remaining - timepassed
+                    if newremaining <= 0:
+                        newremaining = 0
+                    if int(clock["Active Player"]) == 1:
+                        colour = 0xaa3333
+                        playerone = "__**" + player1["Name"] + "**__"
+                        playertwo = player2["Name"]
+                        p1hours = str(int(newremaining / 3600))
+                        p1minutes = str(int(newremaining / 60))
+                        p1seconds = str(int(newremaining % 60))
+                        p2hours = str(int(player2["Remaining"] / 3600))
+                        p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                        p2seconds = str(player2["Remaining"] % 60)
+                    else:
+                        colour = 0x3333aa
+                        playerone = player1["Name"]
+                        playertwo = "__**" + player2["Name"] + "**__"
+                        p1hours = str(int(player1["Remaining"] / 3600))
+                        p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                        p1seconds = str(player1["Remaining"] % 60)           
+                        p2hours = str(int(newremaining / 3600))
+                        p2minutes = str(int(newremaining / 60))
+                        p2seconds = str(int(newremaining % 60))       
+                    if newremaining == 0:
+                        colour = 0x000000                               
+                    #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                    description = "".join([player1["Name"], " vs ", player2["Name"]])
+                    embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                    if newremaining > 0:
+                        embed.add_field(name="Status", value="Running", inline=False)
+                    else:
+                        embed.add_field(name="Status", value="Finished", inline=False)
+                        response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                        await message.channel.send(response.format(message))
+                    embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                    clockmsg = await message.channel.send(embed=embed)
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status Time"] = str(datetime.now())
+                        clocks[id]["Message ID"] = clockmsg.id
+                        if int(clock["Active Player"]) == 1:
+                            clocks[id]["Player1"]["Remaining"] = newremaining
+                        else:
+                            clocks[id]["Player2"]["Remaining"] = newremaining
+                        if newremaining == 0:
+                            clocks[id]["Status"] = "Finished"
+                        json.dump(clocks, clocks_file, indent=4)
+            else:
+                roles = message.author.roles
+                isJudge = False
+                for role in roles:
+                    if role.name == "Judge":
+                        isJudge = True
+                if isJudge == False:
+                    await message.channel.send("You must be a Judge to effect Chess Clocks with an ID.")
+                elif message.content.lower() == "!update all":
+                    await message.channel.send("I haven't written the `!update all` command yet. Give me a break. Please? @Judge !".format(message))
+                else:
+                    id = message.content.lower()[8:]
+                    with open(clockfile,"r") as clocks_file:
+                        clocks = json.load(clocks_file)
+                        try:
+                            clock = clocks[id]
+                        except:
+                            response = "That clock doesn't exist!"
+                            await message.channel.send(response.format(message))             
+                            return
+                        player1 = clock["Player1"]
+                        player2 = clock["Player2"]
+                    if clock["Status"] == "Finished":
+                        response = "That clock is already finished!"
+                        await message.channel.send(response.format(message))
+                    elif clock["Status"] != "Running":
+                        response = "That clock not running. Please use the !start command."
+                        await message.channel.send(response.format(message))
+                    else:
+                        laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                        if int(clock["Active Player"]) == 1:
+                            remaining = player1["Remaining"]
+                            activeplayer = player1["ID"]
+                        else: 
+                            remaining = player2["Remaining"]
+                            activeplayer = player2["ID"]
+                        timepassed = int((datetime.now() - laststatus).total_seconds())
+                        newremaining = remaining - timepassed
+                        if newremaining <= 0:
+                            newremaining = 0
+                        if int(clock["Active Player"]) == 1:
+                            colour = 0xaa3333
+                            playerone = "__**" + player1["Name"] + "**__"
+                            playertwo = player2["Name"]
+                            p1hours = str(int(newremaining / 3600))
+                            p1minutes = str(int(newremaining / 60))
+                            p1seconds = str(int(newremaining % 60))
+                            p2hours = str(int(player2["Remaining"] / 3600))
+                            p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                            p2seconds = str(player2["Remaining"] % 60)
+                        else:
+                            colour = 0x3333aa
+                            playerone = player1["Name"]
+                            playertwo = "__**" + player2["Name"] + "**__"
+                            p1hours = str(int(player1["Remaining"] / 3600))
+                            p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                            p1seconds = str(player1["Remaining"] % 60)           
+                            p2hours = str(int(newremaining / 3600))
+                            p2minutes = str(int(newremaining / 60))
+                            p2seconds = str(int(newremaining % 60))       
+                        if newremaining == 0:
+                            colour = 0x000000                               
+                        #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                        #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                        p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                        p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                        description = "".join([player1["Name"], " vs ", player2["Name"]])
+                        embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                        embed.add_field(name="ID", value=id, inline=False)
+                        embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                        embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                        if newremaining > 0:
+                            embed.add_field(name="Status", value="Running", inline=False)
+                        else:
+                            embed.add_field(name="Status", value="Finished", inline=False)
+                            response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                            await message.channel.send(response.format(message))
+                        embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                        clockmsg = await message.channel.send(embed=embed)
+                        with open(clockfile,"w") as clocks_file:
+                            clocks[id]["Status Time"] = str(datetime.now())
+                            clocks[id]["Message ID"] = clockmsg.id
+                            if int(clock["Active Player"]) == 1:
+                                clocks[id]["Player1"]["Remaining"] = newremaining
+                            else:
+                                clocks[id]["Player2"]["Remaining"] = newremaining
+                            if newremaining == 0:
+                                clocks[id]["Status"] = "Finished"
+                            json.dump(clocks, clocks_file, indent=4)
+                    
+            return
+
+        if message.content.lower().startswith("!switch"):
+            if message.content.lower() == "!switch":
+                clockfound = False
+                with open(clockfile,"r") as clocks_file:
+                    clocks = json.load(clocks_file)
+                    for (id,clock) in clocks.items():
+                        if clockfound == False:
+                            player1 = clock["Player1"]
+                            player2 = clock["Player2"]
+                            if clock["Status"] != "Finished" and int(clock["Channel ID"]) == message.channel.id and (int(player1["ID"]) == message.author.id or int(player2["ID"]) == message.author.id):
+                                clockfound = True
+                                break
+                if clockfound == False:
+                    await message.channel.send("You do not currently have an active clock to update in this channel!".format(message))
+                elif clock["Status"] == "Paused" or clock["Status"] == "Not Started":
+                    if int(clock["Active Player"]) == 2: #reversed logic. it's intentional
+                        playerone = "__**" + player1["Name"] + "**__"
+                        playertwo = player2["Name"]
+                        newplayer = 1
+                    else:
+                        playerone = player1["Name"]
+                        playertwo = "__**" + player2["Name"] + "**__"   
+                        newplayer = 2
+                    if clock["Status"] == "Paused":
+                        colour = 0x33aa33
+                    else:
+                        colour = 0xdddddd
+                    p1hours = str(int(player1["Remaining"] / 3600))
+                    p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                    p1seconds = str(player1["Remaining"] % 60)
+                    p2hours = str(int(player2["Remaining"] / 3600))
+                    p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                    p2seconds = str(player2["Remaining"] % 60)
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+
+                    description = "".join([player1["Name"], " vs ", player2["Name"]])
+                    embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                    embed.add_field(name="Status", value="Running", inline=False)
+                    embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                    clockmsg = await message.channel.send(embed=embed)
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status Time"] = str(datetime.now())
+                        clocks[id]["Message ID"] = clockmsg.id
+                        clocks[id]["Active Player"] = newplayer
+                        json.dump(clocks, clocks_file, indent=4)
+                else:
+                    laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                    if int(clock["Active Player"]) == 1:
+                        remaining = player1["Remaining"]
+                        activeplayer = player1["ID"]
+                    else: 
+                        remaining = player2["Remaining"]
+                        activeplayer = player2["ID"]
+                    timepassed = int((datetime.now() - laststatus).total_seconds())
+                    newremaining = remaining - timepassed
+                    if newremaining <= 0:
+                        newremaining = 0
+                    if int(clock["Active Player"]) == 1:
+                        colour = 0x3333aa
+                        playerone = player1["Name"]
+                        playertwo = "__**" + player2["Name"] + "**__"
+                        p1hours = str(int(newremaining / 3600))
+                        p1minutes = str(int(newremaining / 60))
+                        p1seconds = str(int(newremaining % 60))
+                        p2hours = str(int(player2["Remaining"] / 3600))
+                        p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                        p2seconds = str(player2["Remaining"] % 60)
+                    else:
+                        colour = 0xaa3333
+                        playerone = "__**" +player1["Name"] + "**__"
+                        playertwo = player2["Name"]
+                        p1hours = str(int(player1["Remaining"] / 3600))
+                        p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                        p1seconds = str(player1["Remaining"] % 60)           
+                        p2hours = str(int(newremaining / 3600))
+                        p2minutes = str(int(newremaining / 60))
+                        p2seconds = str(int(newremaining % 60))       
+                    if newremaining == 0:
+                        colour = 0x000000                               
+                    #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                    description = "".join([player1["Name"], " vs ", player2["Name"]])
+                    embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                    if newremaining > 0:
+                        embed.add_field(name="Status", value="Running", inline=False)
+                    else:
+                        embed.add_field(name="Status", value="Finished", inline=False)
+                        response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                        await message.channel.send(response.format(message))
+                    embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                    clockmsg = await message.channel.send(embed=embed)
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status Time"] = str(datetime.now())
+                        clocks[id]["Message ID"] = clockmsg.id
+                        if int(clock["Active Player"]) == 1:
+                            clocks[id]["Player1"]["Remaining"] = newremaining
+                            clocks[id]["Active Player"] = 2
+                        else:
+                            clocks[id]["Player2"]["Remaining"] = newremaining
+                            clocks[id]["Active Player"] = 1
+                        if newremaining == 0:
+                            clocks[id]["Status"] = "Finished"
+                        json.dump(clocks, clocks_file, indent=4)
+
+            return
+
+        if message.content.lower().startswith("!end"):
+            if message.content.lower() == "!end":
+                clockfound = False
+                with open(clockfile,"r") as clocks_file:
+                    clocks = json.load(clocks_file)
+                    for (id,clock) in clocks.items():
+                        if clockfound == False:
+                            player1 = clock["Player1"]
+                            player2 = clock["Player2"]
+                            if clock["Status"] != "Finished" and int(clock["Channel ID"]) == message.channel.id and (int(player1["ID"]) == message.author.id or int(player2["ID"]) == message.author.id):
+                                clockfound = True
+                if clockfound == False:
+                    await message.channel.send("You do not currently have an active clock to end in this channel!".format(message))
+                elif clock["Status"] != "Running":
+                    #await message.channel.delete(clockmsg)
+                    #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+
+                    p1hours = str(int(player1["Remaining"] / 3600))
+                    p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                    p1seconds = str(player1["Remaining"] % 60)           
+                    p2hours = str(int(player2["Remaining"] / 3600))
+                    p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                    p2seconds = str(player2["Remaining"] % 60)           
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+
+                    description = "".join([player1["Name"], " vs ", player2["Name"]])
+                    embed = discord.Embed(title="Chess Clock", description=description, color=0x000000)
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=player1["Name"], value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=player2["Name"], value="`" + p2remaining + "` ", inline=True) 
+                    embed.add_field(name="Status", value="Finished", inline=False)
+                    embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                    clockmsg = await message.channel.send(embed=embed)
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status"] = "Finished"
+                        clocks[id]["Message ID"] = clockmsg.id
+                        json.dump(clocks, clocks_file, indent=4)
+                else:
+                    laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                    if int(clock["Active Player"]) == 1:
+                        remaining = player1["Remaining"]
+                        activeplayer = player1["ID"]
+                    else: 
+                        remaining = player2["Remaining"]
+                        activeplayer = player2["ID"]
+                    timepassed = int((datetime.now() - laststatus).total_seconds())
+                    newremaining = remaining - timepassed
+                    if newremaining <= 0:
+                        newremaining = 0
+                    if int(clock["Active Player"]) == 1:
+                        playerone = "__**" + player1["Name"] + "**__"
+                        playertwo = player2["Name"]
+                        p1hours = str(int(newremaining / 3600))
+                        p1minutes = str(int(newremaining / 60))
+                        p1seconds = str(int(newremaining % 60))
+                        p2hours = str(int(player2["Remaining"] / 3600))
+                        p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                        p2seconds = str(player2["Remaining"] % 60)
+                    else:
+                        playerone = player1["Name"]
+                        playertwo = "__**" + player2["Name"] + "**__"
+                        p1hours = str(int(player1["Remaining"] / 3600))
+                        p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                        p1seconds = str(player1["Remaining"] % 60)           
+                        p2hours = str(int(newremaining / 3600))
+                        p2minutes = str(int(newremaining / 60))
+                        p2seconds = str(int(newremaining % 60))      
+
+                    colour = 0x000000                               
+                    #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                    description = "".join([player1["Name"], " vs ", player2["Name"]])
+                    embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                    if newremaining == 0:
+                        response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                        await message.channel.send(response.format(message))
+                    embed.add_field(name="Status", value="Finished", inline=False)
+                    embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                    clockmsg = await message.channel.send(embed=embed)
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status Time"] = str(datetime.now())
+                        clocks[id]["Message ID"] = clockmsg.id
+                        if int(clock["Active Player"]) == 1:
+                            clocks[id]["Player1"]["Remaining"] = newremaining
+                        else:
+                            clocks[id]["Player2"]["Remaining"] = newremaining
+                        clocks[id]["Status"] = "Finished"
+                        json.dump(clocks, clocks_file, indent=4)
+            else:
+                roles = message.author.roles
+                isJudge = False
+                for role in roles:
+                    if role.name == "Judge":
+                        isJudge = True
+                if isJudge == False:
+                    await message.channel.send("You must be a Judge to effect Chess Clocks with an ID.")
+                else:
+                    id = message.content.lower()[5:]
+                    with open(clockfile,"r") as clocks_file:
+                        clocks = json.load(clocks_file)
+                        try:
+                            clock = clocks[id]
+                        except:
+                            response = "That clock doesn't exist!"
+                            await message.channel.send(response.format(message))             
+                            return
+                        player1 = clock["Player1"]
+                        player2 = clock["Player2"]
+                    if clock["Status"] == "Finished":
+                        response = "That clock is already finished!"
+                        await message.channel.send(response.format(message))     
+                        #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    if clock["Status"] != "Running":
+                        p1hours = str(int(player1["Remaining"] / 3600))
+                        p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                        p1seconds = str(player1["Remaining"] % 60)           
+                        p2hours = str(int(player2["Remaining"] / 3600))
+                        p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                        p2seconds = str(player2["Remaining"] % 60)           
+                        p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                        p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+
+                        description = "".join([player1["Name"], " vs ", player2["Name"]])
+                        embed = discord.Embed(title="Chess Clock", description=description, color=0x000000)
+                        embed.add_field(name="ID", value=id, inline=False)
+                        embed.add_field(name=player1["Name"], value="`" + p1remaining + "`", inline=True) 
+                        embed.add_field(name=player2["Name"], value="`" + p2remaining + "` ", inline=True) 
+                        embed.add_field(name="Status", value="Finished", inline=False)
+                        embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                        clockmsg = await message.channel.send(embed=embed)
+                        with open(clockfile,"w") as clocks_file:
+                            clocks[id]["Status"] = "Finished"
+                            clocks[id]["Message ID"] = clockmsg.id
                             json.dump(clocks, clocks_file, indent=4)
                     else:
-                        response = "That clock is already finished!"
-                        await message.channel.send(response.format(message))      
+                        laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                        if int(clock["Active Player"]) == 1:
+                            remaining = player1["Remaining"]
+                            activeplayer = player1["ID"]
+                        else: 
+                            remaining = player2["Remaining"]
+                            activeplayer = player2["ID"]
+                        timepassed = int((datetime.now() - laststatus).total_seconds())
+                        newremaining = remaining - timepassed
+                        if newremaining <= 0:
+                            newremaining = 0
+                        if int(clock["Active Player"]) == 1:
+                            playerone = "__**" + player1["Name"] + "**__"
+                            playertwo = player2["Name"]
+                            p1hours = str(int(newremaining / 3600))
+                            p1minutes = str(int(newremaining / 60))
+                            p1seconds = str(int(newremaining % 60))
+                            p2hours = str(int(player2["Remaining"] / 3600))
+                            p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                            p2seconds = str(player2["Remaining"] % 60)
+                        else:
+                            playerone = player1["Name"]
+                            playertwo = "__**" + player2["Name"] + "**__"
+                            p1hours = str(int(player1["Remaining"] / 3600))
+                            p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                            p1seconds = str(player1["Remaining"] % 60)           
+                            p2hours = str(int(newremaining / 3600))
+                            p2minutes = str(int(newremaining / 60))
+                            p2seconds = str(int(newremaining % 60))      
+    
+                        colour = 0x000000                               
+                        #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                        #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                        p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                        p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                        description = "".join([player1["Name"], " vs ", player2["Name"]])
+                        embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                        embed.add_field(name="ID", value=id, inline=False)
+                        embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                        embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                        if newremaining == 0:
+                            response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                            await message.channel.send(response.format(message))
+                        embed.add_field(name="Status", value="Finished", inline=False)
+                        embed.add_field(name="Pauses", value="".join([str(clock["Pauses"]),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                        clockmsg = await message.channel.send(embed=embed)
+                        with open(clockfile,"w") as clocks_file:
+                            clocks[id]["Status Time"] = str(datetime.now())
+                            clocks[id]["Message ID"] = clockmsg.id
+                            if int(clock["Active Player"]) == 1:
+                                clocks[id]["Player1"]["Remaining"] = newremaining
+                            else:
+                                clocks[id]["Player2"]["Remaining"] = newremaining
+                            clocks[id]["Status"] = "Finished"
+                            json.dump(clocks, clocks_file, indent=4)
             return
+
+        if message.content.lower().startswith("!pause"):
+            if message.content.lower() == "!pause":
+                clockfound = False
+                with open(clockfile,"r") as clocks_file:
+                    clocks = json.load(clocks_file)
+                    for (id,clock) in clocks.items():
+                        if clockfound == False:
+                            player1 = clock["Player1"]
+                            player2 = clock["Player2"]
+                            if clock["Status"] != "Finished" and int(clock["Channel ID"]) == message.channel.id and (int(player1["ID"]) == message.author.id or int(player2["ID"]) == message.author.id):
+                                clockfound = True
+                if clockfound == False:
+                    await message.channel.send("You do not currently have an active clock to end in this channel!".format(message))
+                elif clock["Status"] != "Running":
+                    await message.channel.send("Your clock is not currently running. Use the !start command.".format(message))
+                else:
+                    laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                    if int(clock["Active Player"]) == 1:
+                        remaining = player1["Remaining"]
+                        activeplayer = player1["ID"]
+                    else: 
+                        remaining = player2["Remaining"]
+                        activeplayer = player2["ID"]
+                    timepassed = int((datetime.now() - laststatus).total_seconds())
+                    newremaining = remaining - timepassed
+                    if newremaining <= 0:
+                        newremaining = 0
+                    if int(clock["Active Player"]) == 1:
+                        playerone = "__**" + player1["Name"] + "**__"
+                        playertwo = player2["Name"]
+                        p1hours = str(int(newremaining / 3600))
+                        p1minutes = str(int(newremaining / 60))
+                        p1seconds = str(int(newremaining % 60))
+                        p2hours = str(int(player2["Remaining"] / 3600))
+                        p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                        p2seconds = str(player2["Remaining"] % 60)
+                    else:
+                        playerone = player1["Name"]
+                        playertwo = "__**" + player2["Name"] + "**__"
+                        p1hours = str(int(player1["Remaining"] / 3600))
+                        p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                        p1seconds = str(player1["Remaining"] % 60)           
+                        p2hours = str(int(newremaining / 3600))
+                        p2minutes = str(int(newremaining / 60))
+                        p2seconds = str(int(newremaining % 60))      
+
+                    colour = 0x33aa33                            
+                    #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                    p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                    p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                    description = "".join([player1["Name"], " vs ", player2["Name"]])
+                    embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                    embed.add_field(name="ID", value=id, inline=False)
+                    embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                    embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                    if newremaining == 0:
+                        response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                        await message.channel.send(response.format(message))
+                        embed.add_field(name="Status", value="Finished", inline=False)
+                    else:
+                        embed.add_field(name="Status", value="Paused", inline=False)
+                    embed.add_field(name="Pauses", value="".join([str(int(str(clock["Pauses"]))+1),"(",str(clock["Judge Pauses"]),")"]), inline=True)
+                    clockmsg = await message.channel.send(embed=embed)
+                    with open(clockfile,"w") as clocks_file:
+                        clocks[id]["Status Time"] = str(datetime.now())
+                        clocks[id]["Message ID"] = clockmsg.id
+                        clocks[id]["Pauses"] = str(int(str(clock["Pauses"]))+1)
+                        if int(clock["Active Player"]) == 1:
+                            clocks[id]["Player1"]["Remaining"] = newremaining
+                        else:
+                            clocks[id]["Player2"]["Remaining"] = newremaining
+                        if newremaining == 0:
+                            clocks[id]["Status"] = "Finished"
+                        else:
+                            clocks[id]["Status"] = "Paused"
+                        json.dump(clocks, clocks_file, indent=4)
+            else:
+                roles = message.author.roles
+                isJudge = False
+                for role in roles:
+                    if role.name == "Judge":
+                        isJudge = True
+                if isJudge == False:
+                    await message.channel.send("You must be a Judge to effect Chess Clocks with an ID.")
+                else:
+                    id = message.content.lower()[7:]
+                    with open(clockfile,"r") as clocks_file:
+                        clocks = json.load(clocks_file)
+                        try:
+                            clock = clocks[id]
+                        except:
+                            response = "That clock doesn't exist!"
+                            await message.channel.send(response.format(message))             
+                            return
+                        player1 = clock["Player1"]
+                        player2 = clock["Player2"]
+                    if clock["Status"] == "Finished":
+                        response = "That clock is already finished!"
+                        await message.channel.send(response.format(message))     
+                        #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                    if clock["Status"] != "Running":
+                        await message.channel.send("That clock is not currently running. Use the !start command.".format(message))
+                    else:
+                        laststatus = datetime.strptime(clock["Status Time"],"%Y-%m-%d %H:%M:%S.%f")
+                        if int(clock["Active Player"]) == 1:
+                            remaining = player1["Remaining"]
+                            activeplayer = player1["ID"]
+                        else: 
+                            remaining = player2["Remaining"]
+                            activeplayer = player2["ID"]
+                        timepassed = int((datetime.now() - laststatus).total_seconds())
+                        newremaining = remaining - timepassed
+                        if newremaining <= 0:
+                            newremaining = 0
+                        if int(clock["Active Player"]) == 1:
+                            playerone = "__**" + player1["Name"] + "**__"
+                            playertwo = player2["Name"]
+                            p1hours = str(int(newremaining / 3600))
+                            p1minutes = str(int(newremaining / 60))
+                            p1seconds = str(int(newremaining % 60))
+                            p2hours = str(int(player2["Remaining"] / 3600))
+                            p2minutes = str(int((player2["Remaining"] % 3600)/60))
+                            p2seconds = str(player2["Remaining"] % 60)
+                        else:
+                            playerone = player1["Name"]
+                            playertwo = "__**" + player2["Name"] + "**__"
+                            p1hours = str(int(player1["Remaining"] / 3600))
+                            p1minutes = str(int((player1["Remaining"] % 3600)/60))
+                            p1seconds = str(player1["Remaining"] % 60)           
+                            p2hours = str(int(newremaining / 3600))
+                            p2minutes = str(int(newremaining / 60))
+                            p2seconds = str(int(newremaining % 60))      
+    
+                        colour = 0x33aa33                              
+                        #await message.channel.send("I would delete the prior message, with the clock times, but Python or DiscordPy is being dick. If you want to solve the problem, suck it.")
+                        #embed.set_field_at(1,name="Remaining", value="`" + '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds) + "` ", inline=True) 
+                        p1remaining = '%02d' % int(p1hours) + ":" + '%02d' % int(p1minutes) + ":" + '%02d' % int(p1seconds)
+                        p2remaining = '%02d' % int(p2hours) + ":" + '%02d' % int(p2minutes) + ":" + '%02d' % int(p2seconds)
+                        description = "".join([player1["Name"], " vs ", player2["Name"]])
+                        embed = discord.Embed(title="Chess Clock", description=description, color=colour)
+                        embed.add_field(name="ID", value=id, inline=False)
+                        embed.add_field(name=playerone, value="`" + p1remaining + "`", inline=True) 
+                        embed.add_field(name=playertwo, value="`" + p2remaining + "` ", inline=True) 
+                        if newremaining == 0:
+                            response = "".join(["Your clock has expired, <@", str(activeplayer), ">!"])
+                            await message.channel.send(response.format(message))
+                        embed.add_field(name="Status", value="Finished", inline=False)
+                        embed.add_field(name="Pauses", value="".join([str(int(str(clock["Pauses"]))+1),"(",str(int(str(clock["Judge Pauses"]))+1),")"]), inline=True)
+                        clockmsg = await message.channel.send(embed=embed)
+                        with open(clockfile,"w") as clocks_file:
+                            clocks[id]["Status Time"] = str(datetime.now())
+                            clocks[id]["Message ID"] = clockmsg.id
+                            clocks[id]["Pauses"] = str(int(str(clock["Pauses"]))+1)
+                            clocks[id]["Judge Pauses"] = str(int(str(clock["Judge Pauses"]))+1)
+                            if int(clock["Active Player"]) == 1:
+                                clocks[id]["Player1"]["Remaining"] = newremaining
+                            else:
+                                clocks[id]["Player2"]["Remaining"] = newremaining
+                            if newremaining == 0:
+                                clocks[id]["Status"] = "Finished"
+                            else:
+                                clocks[id]["Status"] = "Paused"
+                            json.dump(clocks, clocks_file, indent=4)
+            return
+            
 
         #####################################
         # Here end the Chess Clock Commands #
