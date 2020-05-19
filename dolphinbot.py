@@ -2,6 +2,7 @@
 import discord, random, os, re, json
 from os import path
 from shutil import copyfile
+from datetime import datetime, timedelta
 
 client = discord.Client()
 
@@ -12,6 +13,11 @@ clockfile = directory + "/clocks.json"
 if not path.isfile(clockfile):
     copyfile(directory+"/sample clocks.json",clockfile)
 
+settingsfile = directory + "/settings.json"
+if not path.isfile(settingsfile):
+    with open(settingsfile,"w") as settings_file:
+        settings = {"Last Meme": str(datetime.now())}
+        json.dump(settings, settings_file, indent=4)
 
 
 with open(directory + "/bot.key","r") as file:
@@ -55,7 +61,6 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         #print('Message from {0.author}: {0.content}'.format(message))
         import time, uuid
-        from datetime import datetime, timedelta
 
         if message.author == client.user:
             return
@@ -1013,42 +1018,70 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
         #####################################
         # Here end the Chess Clock Commands #
         #####################################
+        
+        #if message.content.lower() == "!test":
+        #    botmsg = await message.channel.send("testing".format(message))
+        #    time.sleep(2)
+        #    await botmsg.edit(content="test complete".format(message))
+        #    return
 
-        if message.content.lower() == "!test":
-            botmsg = await message.channel.send("testing".format(message))
-            time.sleep(2)
-            await botmsg.edit(content="test complete".format(message))
-            return
+        with open(settingsfile,"r") as settings_file:
+            settings = json.load(settings_file)
+        
+        if int((datetime.now() - datetime.strptime(settings["Last Meme"],"%Y-%m-%d %H:%M:%S.%f")).total_seconds()) > 900:
+            if message.content.lower().startswith('judge') or message.content.lower().endswith('judge') or ' judge ' in message.content.lower():
+                image = directory + "/Images/legal.gif"
+                print(image)
+                await message.channel.send(file=discord.File(image))
+                with open(settingsfile,"w") as settings_file:
+                    settings["Last Meme"] = str(datetime.now())
+                    json.dump(settings, settings_file, indent=4)
+                return
 
-        if " judge" in message.content.lower() or "judge " in message.content.lower():
-            image = directory + "/Images/legal.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
+            if message.content.lower().startswith('flex') or message.content.lower().endswith('flex') or ' flex ' in message.content.lower():
+                image = directory + "/Images/flex.gif"
+                print(image)
+                await message.channel.send(file=discord.File(image))
+                with open(settingsfile,"w") as settings_file:
+                    settings["Last Meme"] = str(datetime.now())
+                    json.dump(settings, settings_file, indent=4)
+                return
 
-        if " flex" in message.content.lower() or "flex " in message.content.lower():
-            image = directory + "/Images/flex.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
+            if "infernals" in message.content.lower():
+                image = directory + "/Images/scared.gif"
+                print(image)
+                await message.channel.send(file=discord.File(image))
+                with open(settingsfile,"w") as settings_file:
+                    settings["Last Meme"] = str(datetime.now())
+                    json.dump(settings, settings_file, indent=4)
+                return
 
-        if "infernals" in message.content.lower():
-            image = directory + "/Images/scared.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
+            if message.content.lower().startswith('win') or message.content.lower().endswith('win') or ' win ' in message.content.lower():
+                image = directory + "/Images/collection.gif"
+                print(image)
+                await message.channel.send(file=discord.File(image))
+                with open(settingsfile,"w") as settings_file:
+                    settings["Last Meme"] = str(datetime.now())
+                    json.dump(settings, settings_file, indent=4)
+                return
 
-        if " win" in message.content.lower() or "win " in message.content.lower():
-            image = directory + "/Images/collection.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
+            if message.content.lower().startswith('play') or message.content.lower().endswith('play') or ' play ' in message.content.lower():
+                image = directory + "/Images/duel.gif"
+                print(image)
+                await message.channel.send(file=discord.File(image))
+                with open(settingsfile,"w") as settings_file:
+                    settings["Last Meme"] = str(datetime.now())
+                    json.dump(settings, settings_file, indent=4)
+                return
 
-        if " play" in message.content.lower() or "play " in message.content.lower():
-            image = directory + "/Images/duel.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
-
-        if "balance" in message.content.lower():
-            image = directory + "/Images/balanced.gif"
-            print(image)
-            await message.channel.send(file=discord.File(image))
+            if "balance" in message.content.lower():
+                image = directory + "/Images/balanced.gif"
+                print(image)
+                await message.channel.send(file=discord.File(image))
+                with open(settingsfile,"w") as settings_file:
+                    settings["Last Meme"] = str(datetime.now())
+                    json.dump(settings, settings_file, indent=4)
+                return
 
 client = MyClient()
 client.run(key)
