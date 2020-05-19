@@ -5,15 +5,17 @@
         "Channel ID": 123456789012345678,
         "Active Player": 1,
         "Message ID": 123456789012345678,
+        "Pauses": 0,
+        "Judge Pauses": 0,
         "Player1": {
             "Name": "Larnu",
             "ID": 123456789012345678,
-            "Remaining": "01:00"
+            "Remaining": 60
         },
         "Player2": {
             "Name": "Dolphin Bot",
             "ID": 123456789012345678,
-            "Remaining": "01:00"
+            "Remaining": 60
         }
     }
 }
