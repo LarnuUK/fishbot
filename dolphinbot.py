@@ -37,8 +37,9 @@ help = """Currently the commands available are:
 > !help: Displays this help message.
 > !stream: Get the link the the Knight Twitch Stream.
 > !judge: Ask for a (meme worthy) Judgement call from Dolphin.
-> !timer: Set a countdown timer. Syntax `!timer {hh:mm} ({reason}). Use `!timer` for more details.`
-> !heret: Set a countdown timer that pings here on completion. Syntax `!heret {hh:mm} {reason}. Use `!timer` for more details.`
+> !timer: Set a countdown timer. Syntax `!timer {hh:mm} ({reason}). Use `!timer` for more details.
+> !heret: Set a countdown timer that pings here on completion. Syntax `!heret {hh:mm} {reason}. Use `!timer` for more details.
+> !chessclock: Creates a chess clock between 2 players. Use `!chessclock` and `!chessclock help` for more details.
 > !scenario: Provides a random Stream Roller 2019 Scenario.
 > !github: Provides a link to the bot's GitHub page for reporting issues.
 
