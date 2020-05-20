@@ -51,6 +51,20 @@ help = """Currently the commands available are:
 
 `{}` denote parameters. Parameters wrapped in `()` are optional."""
 
+keywords = ['judge', 'flex', 'infernals', 'win', 'play', 'balance'] #ideally this should got in a seperate file and get imported in. Same with the rest of the text lists.
+
+def meme_commands():
+    for each in keywords:    
+        spaced_keyword = ' ' + each + ' '
+        if message.content.lower().startswith(each) or message.content.lower().endswith(each) or spaced_keyword in message.content.lower():
+            image = directory + f"/Images/{each}.gif"
+            print(image)
+            await message.channel.send(file=discord.File(image))
+            with open(settingsfile,"w") as settings_file:
+                settings["Last Meme"] = str(datetime.now())
+                json.dump(settings, settings_file, indent=4)
+            return
+
 class MyClient(discord.Client):
 
     async def on_ready(self):
@@ -1027,9 +1041,11 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
 
         with open(settingsfile,"r") as settings_file:
             settings = json.load(settings_file)
+
         
         if int((datetime.now() - datetime.strptime(settings["Last Meme"],"%Y-%m-%d %H:%M:%S.%f")).total_seconds()) > 900:
-            if message.content.lower().startswith('judge') or message.content.lower().endswith('judge') or ' judge ' in message.content.lower():
+            meme_commands()
+            """if message.content.lower().startswith('judge') or message.content.lower().endswith('judge') or ' judge ' in message.content.lower():
                 image = directory + "/Images/legal.gif"
                 print(image)
                 await message.channel.send(file=discord.File(image))
@@ -1081,7 +1097,9 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                 with open(settingsfile,"w") as settings_file:
                     settings["Last Meme"] = str(datetime.now())
                     json.dump(settings, settings_file, indent=4)
-                return
+                return"""
+
+        
 
 client = MyClient()
 client.run(key)
