@@ -13,7 +13,7 @@ Any contributions are welcome. I keep a list of issues for enhancements and plan
 
 The live version of Dolphinbot is currently running on python 3.6.9, so if you are contributing, please ensure that you are not using any syntax that is not supported in that version.
 
-If you want to run the the script, you will first need to create yourself a Discord Server you are an Administrator of. Then create the bot in the Discord Developer portal. [Discord py](https://discordpy.readthedocs.io/en/latest/discord.html) gives a tutorial on how to do this. Once you have created your bot in the portal, create a file `bot.key` and put *your* secret key for the bot in there. You will need to also ensure you have installed the `discordpy` module: `python3 -m pip install -U discord.py`
+If you want to run the the script, you will first need to create yourself a Discord Server you are an Administrator of. Then create the bot in the Discord Developer portal. [Discord py](https://discordpy.readthedocs.io/en/latest/discord.html) gives a tutorial on how to do this. Once you have created your bot in the portal, create a file `bot.key` and put *your* secret key for the bot in there (this file is in the `.gitignore` file, so will not be shared). You will need to also ensure you have [installed](https://discordpy.readthedocs.io/en/latest/intro.html#installing) the `discordpy` module: `python3 -m pip install -U discord.py`
 
 Raising Issues
 -----
