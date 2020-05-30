@@ -399,7 +399,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         playerone = "__**" + player1["Name"] + "**__"
                         playertwo = player2["Name"]
                         p1hours = str(int(newremaining / 3600))
-                        p1minutes = str(int(newremaining / 60))
+                        p1minutes = str(int((newremaining % 3600) / 60))
                         p1seconds = str(int(newremaining % 60))
                         p2hours = str(int(player2["Remaining"] / 3600))
                         p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -412,7 +412,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         p1minutes = str(int((player1["Remaining"] % 3600)/60))
                         p1seconds = str(player1["Remaining"] % 60)           
                         p2hours = str(int(newremaining / 3600))
-                        p2minutes = str(int(newremaining / 60))
+                        p2minutes = str(int((newremaining % 3600) / 60))
                         p2seconds = str(int(newremaining % 60))       
                     if newremaining == 0:
                         colour = 0x000000                               
@@ -488,7 +488,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             playerone = "__**" + player1["Name"] + "**__"
                             playertwo = player2["Name"]
                             p1hours = str(int(newremaining / 3600))
-                            p1minutes = str(int(newremaining / 60))
+                            p1minutes = str(int((newremaining % 3600) / 60))
                             p1seconds = str(int(newremaining % 60))
                             p2hours = str(int(player2["Remaining"] / 3600))
                             p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -501,7 +501,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             p1minutes = str(int((player1["Remaining"] % 3600)/60))
                             p1seconds = str(player1["Remaining"] % 60)           
                             p2hours = str(int(newremaining / 3600))
-                            p2minutes = str(int(newremaining / 60))
+                            p2minutes = str(int((newremaining % 3600) / 60))
                             p2seconds = str(int(newremaining % 60))       
                         if newremaining == 0:
                             colour = 0x000000                               
@@ -601,7 +601,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         playerone = player1["Name"]
                         playertwo = "__**" + player2["Name"] + "**__"
                         p1hours = str(int(newremaining / 3600))
-                        p1minutes = str(int(newremaining / 60))
+                        p1minutes = str(int((newremaining % 3600) / 60))
                         p1seconds = str(int(newremaining % 60))
                         p2hours = str(int(player2["Remaining"] / 3600))
                         p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -614,7 +614,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         p1minutes = str(int((player1["Remaining"] % 3600)/60))
                         p1seconds = str(player1["Remaining"] % 60)           
                         p2hours = str(int(newremaining / 3600))
-                        p2minutes = str(int(newremaining / 60))
+                        p2minutes = str(int((newremaining % 3600) / 60))
                         p2seconds = str(int(newremaining % 60))       
                     if newremaining == 0:
                         colour = 0x000000                               
@@ -704,7 +704,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         playerone = "__**" + player1["Name"] + "**__"
                         playertwo = player2["Name"]
                         p1hours = str(int(newremaining / 3600))
-                        p1minutes = str(int(newremaining / 60))
+                        p1minutes = str(int((newremaining % 3600) / 60))
                         p1seconds = str(int(newremaining % 60))
                         p2hours = str(int(player2["Remaining"] / 3600))
                         p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -716,7 +716,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         p1minutes = str(int((player1["Remaining"] % 3600)/60))
                         p1seconds = str(player1["Remaining"] % 60)           
                         p2hours = str(int(newremaining / 3600))
-                        p2minutes = str(int(newremaining / 60))
+                        p2minutes = str(int((newremaining % 3600) / 60))
                         p2seconds = str(int(newremaining % 60))      
 
                     colour = 0x000000                               
@@ -806,7 +806,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             playerone = "__**" + player1["Name"] + "**__"
                             playertwo = player2["Name"]
                             p1hours = str(int(newremaining / 3600))
-                            p1minutes = str(int(newremaining / 60))
+                            p1minutes = str(int((newremaining % 3600) / 60))
                             p1seconds = str(int(newremaining % 60))
                             p2hours = str(int(player2["Remaining"] / 3600))
                             p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -818,7 +818,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             p1minutes = str(int((player1["Remaining"] % 3600)/60))
                             p1seconds = str(player1["Remaining"] % 60)           
                             p2hours = str(int(newremaining / 3600))
-                            p2minutes = str(int(newremaining / 60))
+                            p2minutes = str(int((newremaining % 3600) / 60))
                             p2seconds = str(int(newremaining % 60))      
     
                         colour = 0x000000                               
@@ -879,7 +879,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         playerone = "__**" + player1["Name"] + "**__"
                         playertwo = player2["Name"]
                         p1hours = str(int(newremaining / 3600))
-                        p1minutes = str(int(newremaining / 60))
+                        p1minutes = str(int((newremaining % 3600) / 60))
                         p1seconds = str(int(newremaining % 60))
                         p2hours = str(int(player2["Remaining"] / 3600))
                         p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -891,7 +891,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                         p1minutes = str(int((player1["Remaining"] % 3600)/60))
                         p1seconds = str(player1["Remaining"] % 60)           
                         p2hours = str(int(newremaining / 3600))
-                        p2minutes = str(int(newremaining / 60))
+                        p2minutes = str(int((newremaining % 3600) / 60))
                         p2seconds = str(int(newremaining % 60))      
 
                     colour = 0x33aa33                            
@@ -967,7 +967,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             playerone = "__**" + player1["Name"] + "**__"
                             playertwo = player2["Name"]
                             p1hours = str(int(newremaining / 3600))
-                            p1minutes = str(int(newremaining / 60))
+                            p1minutes = str(int((newremaining % 3600) / 60))
                             p1seconds = str(int(newremaining % 60))
                             p2hours = str(int(player2["Remaining"] / 3600))
                             p2minutes = str(int((player2["Remaining"] % 3600)/60))
@@ -979,7 +979,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                             p1minutes = str(int((player1["Remaining"] % 3600)/60))
                             p1seconds = str(player1["Remaining"] % 60)           
                             p2hours = str(int(newremaining / 3600))
-                            p2minutes = str(int(newremaining / 60))
+                            p2minutes = str(int((newremaining % 3600) / 60))
                             p2seconds = str(int(newremaining % 60))      
     
                         colour = 0x33aa33                              
