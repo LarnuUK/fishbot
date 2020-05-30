@@ -238,17 +238,17 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                 minutes = message.content[15:17]
                 seconds = "00"
                 duration = int(seconds) + (int(minutes) * 60) + (int(hours) * 60 *60)
-                description = "".join([message.author.name, " vs ", message.mentions[0].name])
+                description = "".join([message.author.display_name, " vs ", message.mentions[0].display_name])
                 time = '%02d' % int(hours) + ":" + '%02d' % int(minutes) + ":" + '%02d' % int(seconds)
                 embed = discord.Embed(title="Chess Clock", description=description, color=0xdddddd)
                 embed.add_field(name="ID", value=clockid, inline=False) 
-                embed.add_field(name="__**" + message.author.name+ "**__", value="`" + time + "`", inline=True) 
-                embed.add_field(name=message.mentions[0].name, value="`" + time + "` ", inline=True) 
+                embed.add_field(name="__**" + message.author.display_name+ "**__", value="`" + time + "`", inline=True) 
+                embed.add_field(name=message.mentions[0].display_name, value="`" + time + "` ", inline=True) 
                 embed.add_field(name="Status", value="Not Started", inline=False)
                 embed.add_field(name="Pauses", value="0(0)", inline=True)
                 clockmsg = await message.channel.send(embed=embed)
                 with open(clockfile,"w") as clocks_file:
-                    newclock = {str(clockid): { "Status": "Not Started", "Status Time": str(datetime.now()), "Channel ID": message.channel.id, "Active Player": "1", "Message ID" : str(clockmsg.id), "Pauses": 0, "Judge Pauses": 0, "Player1": {"Name": message.author.name, "ID": message.author.id, "Remaining": duration},"Player2": {"Name": message.mentions[0].name, "ID": message.mentions[0].id, "Remaining": duration}}}
+                    newclock = {str(clockid): { "Status": "Not Started", "Status Time": str(datetime.now()), "Channel ID": message.channel.id, "Active Player": "1", "Message ID" : str(clockmsg.id), "Pauses": 0, "Judge Pauses": 0, "Player1": {"Name": message.author.display_name, "ID": message.author.id, "Remaining": duration},"Player2": {"Name": message.mentions[0].display_name, "ID": message.mentions[0].id, "Remaining": duration}}}
                     clocks.update(newclock)
                     #print(clocks)
                     json.dump(clocks, clocks_file, indent=4)
