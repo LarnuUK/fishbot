@@ -1056,7 +1056,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                     json.dump(settings, settings_file, indent=4)
                 return
 
-            if message.content.lower().startswith('win') or message.content.lower().endswith('win') or ' win ' in message.content.lower():
+            if "I win" in message.content.lower():
                 image = directory + "/Images/collection.gif"
                 print(image)
                 await message.channel.send(file=discord.File(image))
@@ -1065,7 +1065,7 @@ All commands can be optionally followed by an ID, which allows a Judge to intera
                     json.dump(settings, settings_file, indent=4)
                 return
 
-            if message.content.lower().startswith('play') or message.content.lower().endswith('play') or ' play ' in message.content.lower():
+            if "want to play" in message.content.lower() or "wants to play" in message.content.lower():
                 image = directory + "/Images/duel.gif"
                 print(image)
                 await message.channel.send(file=discord.File(image))
