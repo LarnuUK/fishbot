@@ -35,7 +35,7 @@ rulings = ["Obi-wan importantly told Anakin he had the High Ground! In light of 
            "Electro leap will not remove from play.",
            "You can not use opening the gate to bring a companion model in.",
            "After you determine if it was a successful slam, meaning the model ended its slam movement within its slam range (.5'' for most models), it then can cast telekinesis and slam from its new location. As stated assuming it still has the model being slammed in its slam range.",
-           "Because it is intended that with blood bound that no souls or corpses are able to be gained. We will look further at the wording and see what can be done, but for now there is no need for further discussion."]
+           "Because it is intended that with blood bound that no souls or corpses apythre able to be gained. We will look further at the wording and see what can be done, but for now there is no need for further discussion."]
 
 scenarios = ["King of the Hill","Bunkers","Spread the Net","Invasion","Anarchy","Recon II"]
 
@@ -77,7 +77,7 @@ class MyClient(discord.Client):
             return
 
         if message.content.lower() == ("!judge"):
-            if str(message.channel).startswith("vassal"):
+            if str(message.channel).startswith("table"):
                 #response = "I haven't been trained to give Judge calls yet, sorry {0.author.mention}. :(".format(message)
                 response = "Thanks for asking for a Judgement call {0.author.mention}.".format(message)
                 await message.channel.send(response)
